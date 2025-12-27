@@ -1,3 +1,5 @@
+//go:generate cue export cue/LICENSE.cue --out text -e license -f -o LICENSE
+
 package main
 
 import (
@@ -14,6 +16,8 @@ import (
 	"time"
 )
 
+const VERSION = "v0.0.1"
+
 // Config holds all application configuration
 type Config struct {
 	Filters      string
@@ -24,6 +28,7 @@ type Config struct {
 	Color        bool
 	WordBoundary bool
 	Exec         string
+	VersionFlag  bool
 }
 
 // item represents a buffered line
@@ -50,6 +55,11 @@ func main() {
 	cliFs.Visit(func(f *flag.Flag) {
 		cliSet[f.Name] = true
 	})
+
+	if cliCfg.VersionFlag {
+		fmt.Printf("ssort, version: %s\n", VERSION)
+		os.Exit(0)
+	}
 
 	// 2. Identify and Read Filter File
 	var filterFileLines []string
@@ -360,6 +370,7 @@ func defineFlags(fs *flag.FlagSet, c *Config) {
 	fs.DurationVar(&c.Timeout, "timeout", 500*time.Millisecond, "Flush timeout")
 	fs.BoolVar(&c.Color, "color", false, "Enable color-aware mode")
 	fs.BoolVar(&c.WordBoundary, "w", false, "Match on word boundaries only")
+	fs.BoolVar(&c.VersionFlag, "version", false, "Display version and quit")
 	fs.StringVar(&c.Exec, "e", "", "Execute command and sort its output")
 }
 

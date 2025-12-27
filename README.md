@@ -92,3 +92,7 @@ This utility is something I wanted for a while but never got around to writing u
 - **Manual Logic:** While the AI handled the boilerplate well, I had to implement the channel synchronization and result counting/limiting logic by hand, as the model struggled to get the concurrency correct.
 - **Quirks:** During generation, Gemini bugged out a few times and attempted to rewrite the entire tool into Python or a single React component.
 - **Documentation:** This readme was generated because I dislike writing them. It captures the "vibe" of the development process.
+
+---
+
+About me: [xlii.space](https://xlii.space)
