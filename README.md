@@ -5,7 +5,7 @@ It is particularly useful when piping output from tools like [ripgrep](https://g
 ## Installation
 
 ```
-go install [github.com/exlee/ssort@latest](https://github.com/exlee/ssort@latest)
+go install github.com/exlee/ssort@latest
 ```
 
 ## Usage
@@ -18,6 +18,12 @@ You can use `ssort` as a direct pipe filter. Use the `-f` flag to define comma-s
 
 ```
 rg "foo" | ssort -f "Important,Error" --limit 20
+```
+
+or...
+
+```
+ssort -e 'rg "foo"' -f "Important,Error" --limit 20
 ```
 
 ### Semi-scripted / Config Usage
