@@ -254,10 +254,10 @@ func main() {
 		for line := range printCh {
 			fmt.Println(line)
 			if resultsLimit != nil {
+				*resultsLimit--
 				if *resultsLimit <= 0 {
 					break
 				}
-				*resultsLimit--
 			}
 		}
 		// Drain if limit reached but generator still going
