@@ -375,9 +375,9 @@ func main() {
 func defineFlags(fs *flag.FlagSet, c *Config) {
 	fs.StringVar(&c.Filters, "f", "", "Comma separated list of prioritized strings")
 	fs.BoolVar(&c.OnlyMatching, "o", false, "Output only matching results")
-	fs.BoolVar(&c.Keep, "k", false, "Output unsorted (unmatched) lines immediately")
+	fs.BoolVar(&c.Keep, "k", false, "")
 	fs.BoolVar(&c.Keep, "keep-going", false, "Output unsorted (unmatched) lines immediately")
-	fs.BoolVar(&c.IgnoreCase, "i", false, "Ignore case")
+	fs.BoolVar(&c.IgnoreCase, "i", false, "")
 	fs.BoolVar(&c.IgnoreCase, "ignore-case", false, "Ignore case")
 	fs.IntVar(&c.Limit, "limit", 0, "Flush buffer after N prioritized matches")
 	fs.DurationVar(&c.Timeout, "timeout", 500*time.Millisecond, "Flush timeout")
