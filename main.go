@@ -22,6 +22,7 @@ const VERSION = "v0.0.1"
 type Config struct {
 	Filters      string
 	OnlyMatching bool
+	IgnoreCase   bool
 	Keep         bool
 	Limit        int
 	Timeout      time.Duration
@@ -171,6 +172,10 @@ func main() {
 	var filterRegexps []*regexp.Regexp
 	if finalCfg.WordBoundary {
 		for _, f := range filters {
+			if finalCfg.IgnoreCase {
+				f = strings.ToLower(f)
+			}
+
 			pattern := `\b` + regexp.QuoteMeta(f) + `\b`
 			re, err := regexp.Compile(pattern)
 			if err != nil {
@@ -305,6 +310,9 @@ func main() {
 			if finalCfg.Color {
 				cleanLine = ansiRegex.ReplaceAllString(line, "")
 			}
+			if finalCfg.IgnoreCase {
+				cleanLine = strings.ToLower(cleanLine)
+			}
 
 			matchedIndex := -1
 			matchLen := 0
@@ -314,6 +322,9 @@ func main() {
 				if finalCfg.WordBoundary {
 					matched = filterRegexps[i].MatchString(cleanLine)
 				} else {
+					if finalCfg.IgnoreCase {
+						f = strings.ToLower(f)
+					}
 					matched = strings.Contains(cleanLine, f)
 				}
 
@@ -366,6 +377,8 @@ func defineFlags(fs *flag.FlagSet, c *Config) {
 	fs.BoolVar(&c.OnlyMatching, "o", false, "Output only matching results")
 	fs.BoolVar(&c.Keep, "k", false, "Output unsorted (unmatched) lines immediately")
 	fs.BoolVar(&c.Keep, "keep-going", false, "Output unsorted (unmatched) lines immediately")
+	fs.BoolVar(&c.IgnoreCase, "i", false, "Ignore case")
+	fs.BoolVar(&c.IgnoreCase, "ignore-case", false, "Ignore case")
 	fs.IntVar(&c.Limit, "limit", 0, "Flush buffer after N prioritized matches")
 	fs.DurationVar(&c.Timeout, "timeout", 500*time.Millisecond, "Flush timeout")
 	fs.BoolVar(&c.Color, "color", false, "Enable color-aware mode")
@@ -386,6 +399,9 @@ func applyFileConfig(dst *Config, src *Config, cliSet map[string]bool) {
 	}
 	if !cliSet["limit"] {
 		dst.Limit = src.Limit
+	}
+	if !cliSet["i"] && !cliSet["ignore-case"] {
+		dst.IgnoreCase = src.IgnoreCase
 	}
 	if !cliSet["timeout"] {
 		dst.Timeout = src.Timeout

@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	// 2. Create dummy data
 	data := `DEBUG: connection established
 INFO: starting service
-ERROR: critical failure in db
+ERROR: critical failure in info db
 DEBUG: payload received
 INFO: errorneous data found
 WARN: INFO_PAD not found
@@ -68,9 +68,15 @@ func CheckNumberOfLines(t *testing.T, got string, expected int) {
 	}
 }
 func CheckString(t *testing.T, got string, expected string) {
-	trimmed := strings.TrimSpace(expected)
-	if got != trimmed {
+	expected = strings.TrimSpace(expected)
+	if got != expected {
 		t.Errorf("\nExpected:\n%s\nGot:\n%s", expected, got)
+	}
+}
+func CheckContains(t *testing.T, got string, needle string) {
+	needle = strings.TrimSpace(needle)
+	if !strings.Contains(got, needle) {
+		t.Errorf("\nExpected to find:\n%s\nGot:\n%s", needle, got)
 	}
 }
 func CheckPrefix(t *testing.T, got string, expectedPrefix string) {
@@ -81,7 +87,7 @@ func CheckPrefix(t *testing.T, got string, expectedPrefix string) {
 }
 func TestPriorityFiltering(t *testing.T) {
 	cmd := fmt.Sprintf("grep '.' %s | ./%s -f 'ERROR'", testFile, binName)
-	expected := `ERROR: critical failure in db`
+	expected := `ERROR: critical failure in info db`
 
 	got := runPipeline(t, cmd)
 	CheckNumberOfLines(t, got, testFileLines)
@@ -90,7 +96,7 @@ func TestPriorityFiltering(t *testing.T) {
 
 func TestMultiPriority(t *testing.T) {
 	cmd := fmt.Sprintf("grep '.' %s | ./%s -f 'ERROR,WARN'", testFile, binName)
-	expected := `ERROR: critical failure in db
+	expected := `ERROR: critical failure in info db
 WARN: INFO_PAD not found
 WARN: memory high
 `
@@ -136,6 +142,20 @@ func TestOnlyMatching1(t *testing.T) {
 
 	got := runPipeline(t, cmd)
 	CheckNumberOfLines(t, got, 1)
+}
+func TestIgnoreCaseWordBoundary(t *testing.T) {
+	cmd := fmt.Sprintf("grep '.' %s | ./%s -f 'info' -i -w -o", testFile, binName)
+
+	got := runPipeline(t, cmd)
+	CheckContains(t, got, "failure in info db")
+	CheckNumberOfLines(t, got, 3)
+}
+func TestIgnoreCase(t *testing.T) {
+	cmd := fmt.Sprintf("grep '.' %s | ./%s -f 'info' -i -o", testFile, binName)
+
+	got := runPipeline(t, cmd)
+	CheckContains(t, got, "failure in info db")
+	CheckNumberOfLines(t, got, 4)
 }
 func TestOnlyMatching2(t *testing.T) {
 	cmd := fmt.Sprintf("grep '.' %s | ./%s -f 'DEBUG' -w -o", testFile, binName)
